@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>catch-juejin</title>
+    <link href="css/jj.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <div id="wrap" ref="wrap">
+           <!-- 分数 -->
+          <div class="score-wrap" v-show="status">
+            <div class="score-item">
+              <span>profect：</span>
+              <span class="profect"></span>
+            </div>
+            <div class="score-item">
+              <span>better：</span>
+              <span class="better"></span>
+            </div>
+            <div class="score-item">
+              <span>good：</span>
+              <span class="good"></span>
+            </div>
+            <div class="score-item">
+              <span>总分：</span>
+              <span class="total"></span>
+            </div>
+          </div>
+          <!-- 中心框 -->
+          <div class="center-box"></div>
+          <div class="jjj-item jjj-item-demo"></div>
+          <!-- 按钮 -->
+          <div class="catch-btn" onclick="begin()">开始游戏!</div>
+          <div class="catch-btn" onclick="catchJuejinjia()">抓!</div>
+          <div class="over-wrap">
+            <div class="over-content">
+              <div class="over-title">游戏结束</div>
+              <div class="over-text">
+                <p class="over-p"></p>
+              </div>
+              <div class="over-btn" onclick="restart()">重新开始</div>
+            </div>
+          </div>
+    </div>
+    </div>
+    <script>
+      var messageList = []
+      const data = {
+        showRule: false,
+        status: '',
+        jjjInterval: 1000, // 创建掘金酱间隔
+        jjjSpeed: 10, // 掘金酱速度
+        jjjNum: 30, // 掘金酱数量
+        screenWidth: document.documentElement.clientWidth, // 屏幕宽度
+        screenHeight: document.documentElement.clientHeight, // 屏幕高度
+        profect: 0,
+        better: 0,
+        good: 0,
+        jjjCount: 0, // 掘金酱已创建数量
+        createInterval: null
+      }
+
+      var myDiv = document.getElementsByClassName('jjj-item')[0]
+      myDiv.style.display = 'none'
+
+      function showText (text, time = 2000) {
+        messageList.push({
+          text,
+          time
+        })
+        if (messageList.length <= 1) {
+          showTextHandle(text, time)
+        }
+      }
+
+      function showTextHandle (text, time) {
+        let dom = document.createElement('p')
+        dom.innerText = text
+        dom.style.opacity = 0
+        dom.style.top = '30%'
+        dom.className = 'alert-text'
+        document.body.appendChild(dom)
+        setTimeout(() => {
+          dom.style.opacity = 1
+          dom.style.top = '20%'
+          setTimeout(() => {
+            dom.style.opacity = 0
+            dom.style.top = '10%'
+            this.messageList.splice(0, 1)
+            if (messageList.length > 0) {
+              showTextHandle(messageList[0].text, messageList[0].time)
+            }
+            setTimeout(() => {
+              dom.remove()
+            }, 1000)
+          }, time)
+        }, 16)
+      }
+
+     function restart(){
+      // 移除所有掘金酱
+      let jjjItems = document.querySelectorAll('.jjj-item')
+      for (let i = 0; i < jjjItems.length; i++) {
+        jjjItems[i].remove()
+      }
+      begin()
+    }
+
+    // 开始游戏
+    function begin() {
+      data.status = 'start'
+      var overWrap = document.getElementsByClassName('over-wrap')[0]
+      overWrap.style.display = 'none'
+      data.createInterval = setInterval(() => {
+        if (data.jjjCount >= data.jjjNum) {
+          clearInterval(data.createInterval)
+        } else {
+          createJuejinjia()
+        }
+      }, data.jjjInterval)
+    }
+
+     // 生成掘金酱
+     function createJuejinjia () {
+      data.jjjCount++
+      let jjj = document.createElement('div')
+      jjj.className = ['jjj-item', 'jjj-item-active'].join(' ')
+      jjj.style.left = '-160px'
+      document.getElementById('wrap').appendChild(jjj)
+      // 掘金酱移动
+      let jjjMove = () => {
+        if (data.status !== 'start') {
+          return
+        }
+        jjj.style.left = jjj.offsetLeft + data.jjjSpeed + 'px'
+
+        // 如果超出捕捉器范围，则移除class
+        if (jjj.offsetLeft > (data.screenWidth / 2 + 90)) {
+          jjj.classList.remove('jjj-item-active')
+        }
+
+        // 如果掘金酱距离左侧距离大于等于屏幕宽度，则移除掘金酱
+        if (jjj.offsetLeft > data.screenWidth) {
+          document.getElementById('wrap').removeChild(jjj)
+          // 如果没有掘金酱生成，则游戏结束
+          let _jjj = document.querySelectorAll('.jjj-item')[0]
+          if (!_jjj && data.jjjCount >= data.jjjNum) {
+            gameOver()
+          } 
+        } else {
+          requestAnimationFrame(jjjMove)
+        }
+      }
+      jjjMove()
+    }
+
+
+    // 捕捉掘金酱
+    function catchJuejinjia () {
+      // 获取第一个掘金酱
+      let jjj = document.querySelectorAll('.jjj-item-active')[0]
+      // 判断它距离屏幕水平中心的距离
+      let jjjLeft = data.screenWidth / 2 - jjj.offsetLeft - jjj.offsetWidth / 2
+      let abs = Math.abs(jjjLeft)
+      console.log(abs);
+      if (abs < 20) {
+        showText('profect', 500)
+        data.profect++
+        var profect = document.getElementsByClassName('profect')[0]
+        profect.innerHTML = data.profect
+      } else if (abs < 50){
+        showText('better', 500)
+        data.better++
+        var better = document.getElementsByClassName('better')[0]
+        better.innerHTML = data.better
+      } else if (abs < 90){
+        showText('good', 500)
+        data.good++
+        var good = document.getElementsByClassName('good')[0]
+        good.innerHTML = data.good
+      } else {
+        gameOver()
+        return
+      }
+      var total = document.getElementsByClassName('total')[0]
+      total.innerHTML = data.profect * 3 + data.better * 2 + data.good
+      jjj.classList.add('opacity')
+    }
+    // 游戏结束
+   function gameOver () {
+      data.status = 'over'
+      var overWrap = document.getElementsByClassName('over-wrap')[0]
+      overWrap.style.display = 'flex'
+      var overP = document.getElementsByClassName('over-p')[0]
+      overP.innerHTML = data.profect * 3 + data.better * 2 + data.good
+      clearInterval(data.createInterval)
+    }
+    </script>
+  </body>
+</html>
