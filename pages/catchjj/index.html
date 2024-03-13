@@ -34,8 +34,8 @@
           <div class="center-box"></div>
           <div class="jjj-item jjj-item-demo"></div>
           <!-- 按钮 -->
-          <div class="catch-btn" onclick="begin()">开始游戏!</div>
-          <div class="catch-btn" onclick="catchJuejinjia()">抓!</div>
+          <div class="catch-btn start" onclick="begin()">开始游戏!</div>
+          <div class="catch-btn play" onclick="catchJuejinjia()">抓!</div>
           <div class="over-wrap">
             <div class="over-content">
               <div class="over-title">游戏结束</div>
@@ -66,7 +66,10 @@
 
       var myDiv = document.getElementsByClassName('jjj-item')[0]
       myDiv.style.display = 'none'
-
+      var play = document.getElementsByClassName('play')[0]
+      play.style.display = 'none'
+      var overWrap = document.getElementsByClassName('over-wrap')[0]
+      overWrap.style.display = 'none'
       function showText (text, time = 2000) {
         messageList.push({
           text,
@@ -107,6 +110,15 @@
       for (let i = 0; i < jjjItems.length; i++) {
         jjjItems[i].remove()
       }
+      Object.assign(data, {profect: 0,better: 0,good: 0,})
+      var profect = document.getElementsByClassName('profect')[0]
+      profect.innerHTML = data.profect
+      var better = document.getElementsByClassName('better')[0]
+      better.innerHTML = data.better
+      var good = document.getElementsByClassName('good')[0]
+      good.innerHTML = data.good
+      var total = document.getElementsByClassName('total')[0]
+      total.innerHTML = data.profect * 3 + data.better * 2 + data.good
       begin()
     }
 
@@ -115,6 +127,10 @@
       data.status = 'start'
       var overWrap = document.getElementsByClassName('over-wrap')[0]
       overWrap.style.display = 'none'
+      var start = document.getElementsByClassName('start')[0]
+      start.style.display = 'none'
+      var play = document.getElementsByClassName('play')[0]
+      play.style.display = 'block'
       data.createInterval = setInterval(() => {
         if (data.jjjCount >= data.jjjNum) {
           clearInterval(data.createInterval)
